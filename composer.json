@@ -1,0 +1,6 @@
+{
+    "name": "eb/openapitest",
+    "require": {
+        "psr/http-message": "^1.0"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "name": "eb/openapitest-php-unit",
+    "require": {},
+    "repositories": {
+        "openapitest": {
+            "type": "path",
+            "url": "../../"
+        }
+    }
+}
