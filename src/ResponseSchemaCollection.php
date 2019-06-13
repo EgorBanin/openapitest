@@ -7,11 +7,18 @@ use Psr\Http\Message\ResponseInterface;
 class ResponseSchemaCollection implements IResponseSchema
 {
 
-    private $items = [];
+    private $items;
+
+    public function __construct(array $items = [])
+    {
+        $this->items = $items;
+    }
 
     public function add(int $code, string $contentType, IResponseSchema $responseSchema): self
     {
         $this->items[$code][$contentType] = $responseSchema;
+
+        return $this;
     }
 
     public function test(ResponseInterface $response): TestResult
@@ -28,6 +35,27 @@ class ResponseSchemaCollection implements IResponseSchema
         }
 
         return $result;
+    }
+
+    public function subset(?int $code, ?string $contentType)
+    {
+        if (isset($code)) {
+            $subset = array_filter($this->items, function ($key) use ($code) {
+                return $key === $code;
+            }, ARRAY_FILTER_USE_KEY);
+        } else {
+            $subset = $this->items;
+        }
+
+        if (isset($contentType)) {
+            foreach ($subset as $key => $content) {
+                $subset[$key] = array_filter($content, function ($key) use ($contentType) {
+                    return $key === $contentType;
+                }, ARRAY_FILTER_USE_KEY);
+            }
+        }
+
+        return new self($subset);
     }
 
 }

@@ -18,15 +18,34 @@ class Specification
     public function generateMethods(): iterable
     {
         $paths = $this->data->paths?? [];
-        foreach ($paths as $methodName => $methodData) {
-            $method = new Method($methodName, $this->createResponses($methodData));
+        foreach ($paths as $pathName => $pathData) {
+            foreach ($pathData as $methodName => $methodData) {
+                $method = new Method(
+                    $pathName,
+                    $methodName,
+                    $methodData->parameters?? [],
+                    $this->createResponseSchema($methodData)
+                );
 
-            yield $method;
+                yield $method;
+            }
         }
     }
 
-    private function createResponses($methodData): array
+    private function createResponseSchema($methodData): ResponseSchemaCollection
     {
+        $responseSchema = new ResponseSchemaCollection();
 
+        $responses = $methodData->responses?? [];
+        foreach ($responses as $code => $responseData) {
+            $content = $responseData->content?? [];
+            foreach ($content as $contentType => $contentData) {
+                $description = $responseData->description?? '';
+                $schema = $contentData->schema?? ((object)[]);
+                $responseSchema->add((int) $code, $contentType, new ResponseSchema($description, $schema));
+            }
+        }
+
+        return $responseSchema;
     }
 }

@@ -8,12 +8,12 @@ class ResponseSchema implements IResponseSchema
 {
     private $description;
 
-    private $content;
+    private $data;
 
-    public function __construct($description, $content)
+    public function __construct($description, $data)
     {
         $this->description = $description;
-        $this->content = $content;
+        $this->data = $data;
     }
 
     public function test(ResponseInterface $response): TestResult
