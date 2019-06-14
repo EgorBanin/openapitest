@@ -7,9 +7,12 @@ class Specification
 
     private $data;
 
-    public function __construct($data, $refResolver = null)
+    private $refResolver;
+
+    public function __construct(object $data, IRefResolver $refResolver)
     {
         $this->data = $data;
+        $this->refResolver = $refResolver;
     }
 
     /**
@@ -42,7 +45,11 @@ class Specification
             foreach ($content as $contentType => $contentData) {
                 $description = $responseData->description?? '';
                 $schema = $contentData->schema?? ((object)[]);
-                $responseSchema->add((int) $code, $contentType, new ResponseSchema($description, $schema));
+                $responseSchema->add(
+                    (int) $code,
+                    $contentType,
+                    new ResponseSchema($description, $this->refResolver->resolveAll($schema))
+                );
             }
         }
 

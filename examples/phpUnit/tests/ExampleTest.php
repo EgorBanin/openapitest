@@ -2,8 +2,11 @@
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use function GuzzleHttp\Psr7\stream_for;
 use openapitest\IResponseSchema;
 use openapitest\Method;
+use openapitest\Response;
+use openapitest\SimpleRefResolver;
 use openapitest\Specification;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -23,7 +26,9 @@ class ExampleTest extends TestCase
         parent::__construct($name, $data, $dataName);
 
         $specJson = file_get_contents(__DIR__ . '/../spec.json');
-        $this->spec = new Specification(json_decode($specJson));
+        $specData = json_decode($specJson);
+        $definitions = $specData->components->schemas?? ((object)[]);
+        $this->spec = new Specification($specData, new SimpleRefResolver($definitions));
         $this->requestData = require __DIR__ . '/../requestData.php';
     }
 
@@ -36,8 +41,10 @@ class ExampleTest extends TestCase
     public function testSchema(RequestInterface $rq, IResponseSchema $schema)
     {
         $httpClient = new Client();
+        $rq = $rq
+            ->withHeader('Accept', 'application/json');
         $rs = $httpClient->send($rq);
-        $result = $schema->test($rs);
+        $result = $schema->test(Response::fromHttpResponse($rs, 'json_decode'));
 
         $this->assertTrue(!$result->hasErrors(), implode("\n", $result->getErrors()));
     }

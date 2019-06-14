@@ -2,8 +2,6 @@
 
 namespace openapitest;
 
-use Psr\Http\Message\ResponseInterface;
-
 class ResponseSchemaCollection implements IResponseSchema
 {
 
@@ -21,10 +19,10 @@ class ResponseSchemaCollection implements IResponseSchema
         return $this;
     }
 
-    public function test(ResponseInterface $response): TestResult
+    public function test(Response $response): TestResult
     {
         $code = $response->getStatusCode();
-        $contentType = $response->getHeader('Content-Type')[0];
+        $contentType = $response->getContentType();
         $responseType = $this->items[$code][$contentType]?? null;
 
         if ($responseType) {

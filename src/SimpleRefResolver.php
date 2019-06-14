@@ -12,9 +12,30 @@ class SimpleRefResolver implements IRefResolver
         $this->schemas = $schemas;
     }
 
-    public function resolve($refName): ?object
+    public function resolveAll($data)
     {
-        $schema = $this->schemas->{$refName}?? null;
+        if (is_iterable($data) || ($data instanceof \StdClass)) {
+            $refs = [];
+            foreach ($data as $key => &$item) {
+                if ($key === '$ref') {
+                    $data = $this->resolveRef($item); // todo
+                    break;
+                } else {
+                    $item = $this->resolveAll($item); // ! рекурсия
+                }
+             }
+            $result = $data;
+        } else {
+            $result = $data;
+        }
+
+        return $result;
+    }
+
+    public function resolveRef($refName): ?object
+    {
+        $ref = str_replace('#/components/schemas/', '', $refName);
+        $schema = $this->schemas->{$ref}?? null;
 
 
         return $schema;

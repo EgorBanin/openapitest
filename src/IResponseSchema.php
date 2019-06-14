@@ -2,9 +2,7 @@
 
 namespace openapitest;
 
-use Psr\Http\Message\ResponseInterface;
-
 interface IResponseSchema
 {
-    public function test(ResponseInterface $response): TestResult;
+    public function test(Response $response): TestResult;
 }

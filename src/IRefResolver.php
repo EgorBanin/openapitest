@@ -4,5 +4,8 @@ namespace openapitest;
 
 interface IRefResolver
 {
-    public function resolve($refName): ?object;
+
+    public function resolveAll($data);
+
+    public function resolveRef($refName): ?object;
 }
